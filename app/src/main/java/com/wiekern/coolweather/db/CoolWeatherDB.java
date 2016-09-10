@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.wiekern.coolweather.model.City;
 import com.wiekern.coolweather.model.County;
@@ -60,12 +61,16 @@ public class CoolWeatherDB {
     }
 
     public void saveCity(City city) {
+        Log.d("ChooseAreaActivity", "saveCity entered");
         if (city != null) {
+            Log.d("ChooseAreaActivity", "saveCity not null");
             ContentValues values = new ContentValues();
             values.put("city_name", city.getCityName());
             values.put("city_code", city.getCityCode());
             values.put("province_id", city.getProvinceId());
-            db.insert("City", null, values);
+            if (db.insert("City", null, values) < 0 ) {
+                Log.d("ChooseAreaActivity", "saveCity failed");
+            }
         }
     }
 
@@ -74,12 +79,14 @@ public class CoolWeatherDB {
         Cursor cursor = db.query("City", null, "province_id = ?",
                 new String[] {String.valueOf(provinceId)}, null, null, null);
         if (cursor.moveToFirst()) {
+            Log.d("ChooseAreaActivity", "loadCities");
             do {
                 City city = new City();
                 city.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
                 city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
                 city.setProvinceId(provinceId);
+                list.add(city);
             } while (cursor.moveToNext());
 
         }
